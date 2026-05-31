@@ -23,6 +23,7 @@ import orion_servo
 
 CONFIG_FILE = Path(__file__).parent.resolve().as_posix() + "/../conf/config.json"
 LOG_FILE = "/var/log/orion.log"
+config = {}
 
 # =================================================
 
@@ -43,19 +44,19 @@ def load_json_config(filepath):
 
             # Ensure the top-level JSON structure is an object (dictionary in Python)
             if not isinstance(config, dict):
-                log_message(f"Invalid config format: Top-level structure in '{filepath}' must be a JSON object.")
+                log_message(f"Error: Invalid config format. Top-level structure in '{filepath}' must be a JSON object.", to_file=True)
                 return {}
 
             return config
 
     except FileNotFoundError:
-        log_message(f"Configuration file not found: '{filepath}'")
+        log_message(f"Error: Configuration file not found: '{filepath}'", to_file=True)
     except json.JSONDecodeError as e:
-        log_message(f"JSON decoding error in '{filepath}': {e}")
+        log_message(f"Error: JSON decoding error in '{filepath}': {e}", to_file=True)
     except PermissionError:
-        log_message(f"Permission denied when trying to read '{filepath}'")
+        log_message(f"Error: Permission denied when trying to read '{filepath}'", to_file=True)
     except Exception as e:
-        log_message(f"An unexpected error occurred while reading '{filepath}': {e}")
+        log_message(f"Error: An unexpected error occurred while reading '{filepath}': {e}", to_file=True)
 
     return {}
 
@@ -99,7 +100,7 @@ def check_pi_camera():
         if "No cameras available" in output or not output.strip():
             return False
 
-        log_message(f"Camera: \033[34mDetected\033[0m")
+        log_message(f"Camera: \033[34mDetected\033[0m", to_file=config["log_to_file"])
 
         # Regex to parse the main device block e.g., "0 : imx708 [4608x2592 10-bit RGGB] (...)"
         camera_match = re.search(r"\d+\s*:\s*([\w\-]+)\s*\[(\d+x\d+)\s+([^\]]+)\]", output)
@@ -109,14 +110,14 @@ def check_pi_camera():
             max_res = camera_match.group(2)
             bit_depth = camera_match.group(3)
 
-            log_message(f"Camera Model: \033[34m{model}\033[0m")
-            log_message(f"Max Resolution: \033[34m{max_res} pixels\033[0m")
-            log_message(f"Sensor Format: \033[34m{bit_depth}\033[0m")
+            log_message(f"Camera Model: \033[34m{model}\033[0m", to_file=config["log_to_file"])
+            log_message(f"Max Resolution: \033[34m{max_res} pixels\033[0m", to_file=config["log_to_file"])
+            log_message(f"Sensor Format: \033[34m{bit_depth}\033[0m", to_file=config["log_to_file"])
 
         # Regex to find the path inside the device tree mapping
         bus_match = re.search(r"\(([^)]+)\)", output)
         if bus_match:
-            log_message(f"Hardware Path: \033[34m{bus_match.group(1)}\033[0m")
+            log_message(f"Hardware Path: \033[34m{bus_match.group(1)}\033[0m", to_file=config["log_to_file"])
 
         # Extract individual hardware sensor modes supported directly by the module
         modes_block = re.findall(r"(\d+x\d+)\s*\[([\d.]+)\s*fps[^\]]*\]", output)
@@ -125,17 +126,17 @@ def check_pi_camera():
             for mode in modes_block:
                 modes.append(f"\033[34m{mode[0]} @ {mode[1]} FPS\033[0m")
 
-            log_message(f"Supported Hardware Modes: {",".join(modes)}")
+            log_message(f"Supported Hardware Modes: {",".join(modes)}", to_file=config["log_to_file"])
         return True
 
     except FileNotFoundError:
-        log_message("\033[31mError:\033[0m 'rpicam-still' utility not found. Ensure rpicam-apps package is installed.")
+        log_message("\033[31mError:\033[0m 'rpicam-still' utility not found. Ensure rpicam-apps package is installed.", to_file=config["log_to_file"])
         return False
     except subprocess.TimeoutExpired:
-        log_message("\033[31mError:\033[0m Camera query timed out. The hardware bus might be frozen.")
+        log_message("\033[31mError:\033[0m Camera query timed out. The hardware bus might be frozen.", to_file=config["log_to_file"])
         return False
     except Exception as e:
-        log_message(f"\033[31mUnexpected error checking camera status: {e}\033[0m")
+        log_message(f"\033[31mUnexpected error checking camera status: {e}\033[0m", to_file=config["log_to_file"])
         return False
 
 def get_capture_window(lat, lon):
@@ -184,10 +185,10 @@ def stack_and_clean(image_dir, final_output_path):
     image_paths = sorted(glob.glob(search_path))
 
     if not image_paths:
-        log_message("\033[31mNo images found to stack.\033[0m")
+        log_message("\033[31mNo images found to stack.\033[0m", to_file=config["log_to_file"])
         return
 
-    log_message(f"\033[33mStacking {len(image_paths)} images...\033[0m")
+    log_message(f"\033[33mStacking {len(image_paths)} images...\033[0m", to_file=config["log_to_file"])
 
     # Read the first image as the base
     # We process one by one to prevent the Pi from running out of RAM
@@ -202,7 +203,7 @@ def stack_and_clean(image_dir, final_output_path):
 
     # Save the final enhanced image
     cv2.imwrite(final_output_path, stacked)
-    log_message(f"Stacked image saved to \033[34m{final_output_path}\033[0m")
+    log_message(f"Stacked image saved to \033[34m{final_output_path}\033[0m", to_file=config["log_to_file"])
 
     # Clean up individual frames
     clean_old_images(image_dir)
@@ -212,57 +213,63 @@ def clean_old_images(image_dir):
     image_paths = sorted(glob.glob(search_path))
     count = 0
 
-    log_message(f"\033[33mCleaning up individual frames in\033[0m \033[34m{image_dir}\033[0m")
+    log_message(f"\033[33mCleaning up individual frames in\033[0m \033[34m{image_dir}\033[0m", to_file=config["log_to_file"])
     for path in image_paths:
         os.remove(path)
         count += 1
 
-    log_message(f"Deleted \033[34m{count}\033[0m files")
+    log_message(f"Deleted \033[34m{count}\033[0m files", to_file=config["log_to_file"])
 
 def main():
+    global config
+
     # Show intro
     orion_splash.animated_starfield()
 
-    orion_servo.move(0)
-
-    # Read config JSON
-    log_message(f"\033[33mReading configuration from\033[0m \033[34m{CONFIG_FILE}\033[0m")
+    # Read config JSON into global var
+    log_message(f"\033[33mReading configuration from\033[0m \033[34m{CONFIG_FILE}\033[0m", to_file=True)
     config = load_json_config(CONFIG_FILE);
     if not config:
-        log_message(f"No config file found at {CONFIG_FILE}. \033[31mExiting...\033[0m")
+        log_message(f"No config file found at {CONFIG_FILE}. \033[31mExiting...\033[0m", to_file=True)
         sys.exit(-1)
     else:
-        log_message(f"Using configuration: \033[34m{config}\033[0m")
+        log_message(f"Using configuration: \033[34m{config}\033[0m", to_file=config["log_to_file"])
+
+    # Make sure the servo iris is closed
+    log_message(f"\033[33mClosing iris...\033[0m", to_file=config["log_to_file"])
+    orion_servo.move(0)
 
     # Check that we have a camera connected
+    # Exit if no camera found
     if not check_pi_camera():
-        log_message("No camera found. \033[31mExiting...\033[0m")
+        log_message("No camera found. \033[31mExiting...\033[0m", to_file=config["log_to_file"])
         sys.exit(-1)
 
     # Create temp dir
     if not os.path.exists(config["temp_image_dir"]):
-        log_message(f"\033[33mCreating temporary dir\033[0m \033[34m{config["temp_image_dir"]}\033[0m")
+        log_message(f"\033[33mCreating temporary dir\033[0m \033[34m{config["temp_image_dir"]}\033[0m", to_file=config["log_to_file"])
         os.makedirs(config["temp_image_dir"])
 
     # Create final dir
     if not os.path.exists(config["final_image_dir"]):
-        log_message(f"\033[33mCreating final dir\033[0m \033[34m{config["final_image_dir"]}\033[0m")
+        log_message(f"\033[33mCreating final dir\033[0m \033[34m{config["final_image_dir"]}\033[0m", to_file=config["log_to_file"])
         os.makedirs(config["final_image_dir"])
 
     # Make sure we have coordinates
+    # Exit if no coordinates configured
     if not config["latitude"] or not config["longitude"]:
-        log_message("No coordinates found. \033[31mExiting...\033[0m")
+        log_message("No coordinates found. \033[31mExiting...\033[0m", to_file=config["log_to_file"])
         sys.exit(-1)
 
-    log_message(f"Loaded coordinates: \033[34m[{config["latitude"]}, {config["longitude"]}]\033[0m")
+    log_message(f"Loaded coordinates: \033[34m[{config["latitude"]}, {config["longitude"]}]\033[0m", to_file=config["log_to_file"])
 
     # Enter main waiting loop
     while True:
         start_time, end_time, timezone_name = get_capture_window(config["latitude"], config["longitude"])
         now = datetime.now(ZoneInfo(timezone_name))
-        log_message(f"Time zone: \033[34m{timezone_name}\033[0m")
-        log_message(f"Current Time: \033[34m{now.strftime('%Y-%m-%d %H:%M:%S %Z')}\033[0m")
-        log_message(f"Next capture window: \033[34m{start_time.strftime('%Y-%m-%d %H:%M:%S %Z')} to {end_time.strftime('%Y-%m-%d %H:%M:%S %Z')}\033[0m")
+        log_message(f"Time zone: \033[34m{timezone_name}\033[0m", to_file=config["log_to_file"])
+        log_message(f"Current Time: \033[34m{now.strftime('%Y-%m-%d %H:%M:%S %Z')}\033[0m", to_file=config["log_to_file"])
+        log_message(f"Next capture window: \033[34m{start_time.strftime('%Y-%m-%d %H:%M:%S %Z')} to {end_time.strftime('%Y-%m-%d %H:%M:%S %Z')}\033[0m", to_file=config["log_to_file"])
 
         # Wait until the start of the window
         if now < start_time:
@@ -271,15 +278,16 @@ def main():
 
             # Wait till the next sunset
             sleep_seconds = (start_time - now).total_seconds()
-            log_message(f"\033[33mWaiting {sleep_seconds / 3600:.2f} hours until sunset + 1 hour...\033[0m")
+            log_message(f"\033[33mWaiting {sleep_seconds / 3600:.2f} hours until sunset + 1 hour...\033[0m", to_file=config["log_to_file"])
             time.sleep(sleep_seconds)
 
         # Open camera to the sky
+        log_message(f"\033[33mOpening iris...\033[0m", to_file=config["log_to_file"])
         orion_servo.move(90)
 
-        log_message("Capture window active. \033[32mStarting collection...\033[0m")
-        log_message(f"Collection interval: \033[34m{config["imaging_interval"]} s\033[0m")
-        log_message(f"Camera shutter: \033[34m{config["camera_shutter"]} us\033[0m")
+        log_message("Capture window active. \033[32mStarting collection...\033[0m", to_file=config["log_to_file"])
+        log_message(f"Collection interval: \033[34m{config["imaging_interval"]} s\033[0m", to_file=config["log_to_file"])
+        log_message(f"Camera shutter: \033[34m{config["camera_shutter"]} us\033[0m", to_file=config["log_to_file"])
 
         frame_count = 0
 
@@ -304,17 +312,19 @@ def main():
             capture_duration = capture_end_time - capture_start_time
 
             frame_count += 1
-            log_message(f"Captured frame #{frame_count} \033[34m{filename}\033[0m")
-            log_message(f"Capturing took \033[34m{capture_duration:.2f}\033[0m seconds")
+            log_message(f"Captured frame #{frame_count} \033[34m{filename}\033[0m", to_file=config["log_to_file"])
+            log_message(f"Capturing took \033[34m{capture_duration:.2f}\033[0m seconds", to_file=config["log_to_file"])
 
             # Sleep until the next interval, breaking early if the window ends
 
             if capture_duration < config["imaging_interval"]:
                 time.sleep(config["imaging_interval"] - capture_duration)
 
-        log_message("Capture window ended. \033[32mInitiating stacking sequence...\033[0m")
+        log_message("Capture window ended. \033[32mInitiating stacking sequence...\033[0m", to_file=config["log_to_file"])
 
-        move_servo(0)
+        # Close iris
+        log_message(f"\033[33mClosing iris...\033[0m", to_file=config["log_to_file"])
+        orion_servo.move(0)
 
         # Format the final stacked image name with today's date
         date_str = datetime.now().strftime("%Y-%m-%d")

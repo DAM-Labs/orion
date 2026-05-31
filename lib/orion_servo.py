@@ -43,13 +43,10 @@ def set_angle(angle):
     with open(f"{PWM0_DIR}/enable", "w") as f:
         f.write("1")
 
-    print(f"Moving to {angle}° (Sending {duty_cycle_ns} ns pulse via kernel)...")
-
 def stop_servo():
     """Cuts the PWM signal entirely to eliminate jitter."""
     with open(f"{PWM0_DIR}/enable", "w") as f:
         f.write("0")
-    print("Signal cut. Servo is silent.")
 
 def move(angle):
     # Verify the dtoverlay was actually loaded in config.txt

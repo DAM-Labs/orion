@@ -4,5 +4,6 @@
 	"temp_image_dir":"/tmp/images",
 	"final_image_dir":"/tmp",
 	"imaging_interval":60,
-	"camera_shutter":15000000
+	"camera_shutter":15000000,
+	"log_to_file":true
 }
