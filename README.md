@@ -2,9 +2,10 @@
 ![ORION Startup Screen](./misc/orion.png)
 
 ## Documentation
+So you have decided to setup an ORION system yourself? Keep reading.
 
 ### Config file
-Inside the `conf/` directory copy the `config.json.default` to `config.json`. By default the application is looking for this file to load up settings. Once you made a copy, open the file in your favorite text-based editor (e.g. `nano config.json`) and make your changes. At minimum you have to adjust your location by entering latitude and longitude in decimal format.
+The `conf/` directory contains a sample configuration file. Copy the `config.json.default` to `config.json`. By default the application is looking for this file to load up settings. Once you made the copy open the new file in your favorite text-based editor (e.g. `nano config.json`) and make changes as needed. At minimum you have to adjust your location by entering latitude and longitude in decimal format. If you have a GPS receiver in your 4G/LTE hat that the application supports, the coordinates will be picked up automatically and the JSON file is updated for you.
 
 - **latitude** - The latitude of your ORION box \[*decimal*, default Moab, UT\]
 - **longitude** - The longitude of you ORION box \[*decimal*, default Moab, UT\]
@@ -13,20 +14,21 @@ Inside the `conf/` directory copy the `config.json.default` to `config.json`. By
 - **imaging_interval** - Frequency of capturing images in seconds \[*int*, default 60\]
 - **camera_shutter** - For how long should the camera be capturing the open sky in microseconds \[*int*, default 15000000\]
 - **log_to_file** - Write status and error messages into a log file, not just the screen \[*bool*, default true\]
+- **minutes_delay** - How many minutes to wait after the sunset to start collecting images and how many minutes before the sunrise to stop the collection \[*int*, default 65\]
 
 ### Switches
-Script `orion.py` accept several command line arguments which overwrite certain default behaviors.
+The `orion.py` main application accepts several command line arguments which override some default behavior.
 
-- **-c or --config \<file\>** - Supply alternate path to the JSON config file
-- **--no_splash** - Do not show the start up screen
+- **-c \<file\>** or **--config \<file\>** - Supply alternate path to the JSON config file and do not use the default `conf/` directory one.
+- **--no_splash** - Do not show the start up screen when running `orion.py`.
 
 ## Requirements
-There are many ways to slide and dice this setup. You can build a simple solution with Wi-Fi and PoE power, or you can have an offline solution that you manually harvest images from that requires nothign more than 5VDC in. What hardware you will need depends on you and how automated you want the system be. Our prototype system runs off solar power, has a 4G/LTE hat, and is locatated in a very remote area of the world with limited physical access. Our goal was to make a self sufficient unit which can gather stacked images and send them to a centralized server. Your setup can be much simpler if you place the ORION system on the roof of your house with good access to your Wi-Fi. Below are the most basic requirements needed for a home Wi-Fi setup.
+There are many ways to slice and dice this setup. You can build a simple system with Wi-Fi and PoE power, or you can have an offline solution that you manually harvest images from that requires nothign more than 5VDC in. What hardware you will need depends on you and how automated you want the system to be. Our prototype system runs off solar power, has a 4G/LTE hat, and is locatated in a very remote area of the world with limited physical access. Our goal was to make a self sufficient unit which can gather stacked images and send them to a centralized server. Your setup can be much simpler if you place the ORION system on the roof of your house with good access to your Wi-Fi. Below are the most basic requirements needed for a home Wi-Fi setup.
 
 ### Hardware
 - Raspberry Pi 0 2W, 4, or 5
 - Pi Camera module with ribbon cable
-- SG90 Servo
+- SG90 servo
 - Enclosure
 - Glass cover
 - Water tight connector for power
@@ -34,6 +36,7 @@ There are many ways to slide and dice this setup. You can build a simple solutio
 ### System
 
 - lighttpd
+
 ### Python
 Please see the [requirements.txt](./requirements.txt) file for needed modules. After you create your virtual environment, run this command: `pip install -r requirements.txt`
 

@@ -168,15 +168,15 @@ def get_capture_window(lat, lon):
     s_today = sun(loc.observer, date=now.date(), tzinfo=ZoneInfo(timezone_name))
     s_tomorrow = sun(loc.observer, date=now.date() + timedelta(days=1), tzinfo=ZoneInfo(timezone_name))
 
-    start_window = s_today['sunset'] + timedelta(hours=1)
-    end_window = s_tomorrow['sunrise'] - timedelta(hours=1)
+    start_window = s_today['sunset'] + timedelta(minutes=config["minutes_delay"])
+    end_window = s_tomorrow['sunrise'] - timedelta(minutes=config["minutes_delay"])
 
     # If we are already past the current window, calculate for the next evening
     if now > end_window:
         s_next = sun(loc.observer, date=now.date() + timedelta(days=1))
         s_next_morning = sun(loc.observer, date=now.date() + timedelta(days=2))
-        start_window = s_next['sunset'] + timedelta(hours=1)
-        end_window = s_next_morning['sunrise'] - timedelta(hours=1)
+        start_window = s_next['sunset'] + timedelta(minutes=config["minutes_delay"])
+        end_window = s_next_morning['sunrise'] - timedelta(minutes=config["minutes_delay"])
 
     return start_window, end_window, timezone_name
 
@@ -296,6 +296,7 @@ def main():
         now = datetime.now(ZoneInfo(timezone_name))
         log_message(f"Time zone: \033[34m{timezone_name}\033[0m", to_file=config["log_to_file"])
         log_message(f"Current Time: \033[34m{now.strftime('%Y-%m-%d %H:%M:%S %Z')}\033[0m", to_file=config["log_to_file"])
+        log_message(f"Capture delay: \033[34m{config["minutes_delay"]} minutes\033[0m", to_file=config["log_to_file"])
         log_message(f"Next capture window: \033[34m{start_time.strftime('%Y-%m-%d %H:%M:%S %Z')} to {end_time.strftime('%Y-%m-%d %H:%M:%S %Z')}\033[0m", to_file=config["log_to_file"])
 
         # Wait until the start of the window
@@ -305,7 +306,7 @@ def main():
 
             # Wait till the next sunset
             sleep_seconds = (start_time - now).total_seconds()
-            log_message(f"\033[33mWaiting {sleep_seconds / 3600:.2f} hours until sunset + 1 hour...\033[0m", to_file=config["log_to_file"])
+            log_message(f"\033[33mWaiting {sleep_seconds / 3600:.2f} hours until sunset + {config["minutes_delay"]} minutes...\033[0m", to_file=config["log_to_file"])
             time.sleep(sleep_seconds)
 
         # Open camera to the sky
@@ -327,7 +328,7 @@ def main():
                 "/usr/bin/rpicam-still",
                 "-n",
                 "--immediate",
-                "--shutter", config["camera_shutter"],
+                "--shutter", str(config["camera_shutter"]),
                 "--gain", "1",
                 "--awbgains", "1,1"
                 "-o", filename
