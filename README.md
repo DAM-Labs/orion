@@ -1,5 +1,6 @@
-# orion
 ![ORION Startup Screen](./misc/orion.png)
+
+What is this you ask? ORION is a continuation and modernisation of a [project](https://github.com/davidus-sk/orion) I did over 12 years ago. ORION is a simple imaging system which runs from danw to dusk, it captures images of the sky periodically, stacks them, and then looks for lines. Why you ask? Well, for fun of course. The idea is to create beutidul composite images of the sky and capture a meteor or two streaking through the skys. Space is fascinating and the night sky is a window through which we can observe it.
 
 ## Documentation
 So you have decided to setup an ORION system yourself? Keep reading.

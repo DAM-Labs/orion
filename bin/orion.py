@@ -330,7 +330,7 @@ def main():
                 "--immediate",
                 "--shutter", str(config["camera_shutter"]),
                 "--gain", "1",
-                "--awbgains", "1,1"
+                "--awbgains", "1,1",
                 "-o", filename
             ]
 
@@ -356,7 +356,7 @@ def main():
 
         # Format the final stacked image name with today's date
         date_str = datetime.now().strftime("%Y-%m-%d")
-        final_image_path = os.path.join(config["final_image_dir"], f"{date_str}_stacked")
+        final_image_path = os.path.join(config["final_image_dir"], f"{date_str}_stacked.jpg")
 
         stack_and_clean(config["temp_image_dir"], final_image_path)
 
