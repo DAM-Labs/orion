@@ -6,27 +6,38 @@
 ### Config file
 Inside the `conf/` directory copy the `config.json.default` to `config.json`. By default the application is looking for this file to load up settings. Once you made a copy, open the file in your favorite text-based editor (e.g. `nano config.json`) and make your changes. At minimum you have to adjust your location by entering latitude and longitude in decimal format.
 
-- latitude - The latitude of your ORION box (decimal)
-- longitude - The longitude of you ORION box (decimal)
-- temp_image_dir - Location of the temporarily (nightly) captured images which are later merged together (string)
-- final_image_dir - Location where the final merged image should be saved (string)
-- imaging_interval - Frequency of capturing images in seconds (int)
-- camera_shutter - For how long should the camera be capturing the open sky in microseconds (int)
-- log_to_file - Write status and error messages into a log file, not just the screen (bool)
-
+- **latitude** - The latitude of your ORION box \[*decimal*, default Moab, UT\]
+- **longitude** - The longitude of you ORION box \[*decimal*, default Moab, UT\]
+- **temp_image_dir** - Location of the temporarily (nightly) captured images which are later merged together \[*string*, default /tmp/images\]
+- **final_image_dir** - Location where the final merged image should be saved \[*string*, default /tmp\]
+- **imaging_interval** - Frequency of capturing images in seconds \[*int*, default 60\]
+- **camera_shutter** - For how long should the camera be capturing the open sky in microseconds \[*int*, default 15000000\]
+- **log_to_file** - Write status and error messages into a log file, not just the screen \[*bool*, default true\]
 
 ### Switches
 Script `orion.py` accept several command line arguments which overwrite certain default behaviors.
 
-- -c or --config <file> - Supply alternate path to the JSON config file
-- -no_splash - Do not show the start up screen
-
+- **-c or --config \<file\>** - Supply alternate path to the JSON config file
+- **--no_splash** - Do not show the start up screen
 
 ## Requirements
-### Python
-!INCLUDE "requirements.txt"
+There are many ways to slide and dice this setup. You can build a simple solution with Wi-Fi and PoE power, or you can have an offline solution that you manually harvest images from that requires nothign more than 5VDC in. What hardware you will need depends on you and how automated you want the system be. Our prototype system runs off solar power, has a 4G/LTE hat, and is locatated in a very remote area of the world with limited physical access. Our goal was to make a self sufficient unit which can gather stacked images and send them to a centralized server. Your setup can be much simpler if you place the ORION system on the roof of your house with good access to your Wi-Fi. Below are the most basic requirements needed for a home Wi-Fi setup.
 
-### Prototype
+### Hardware
+- Raspberry Pi 0 2W, 4, or 5
+- Pi Camera module with ribbon cable
+- SG90 Servo
+- Enclosure
+- Glass cover
+- Water tight connector for power
+
+### System
+
+- lighttpd
+### Python
+Please see the [requirements.txt](./requirements.txt) file for needed modules. After you create your virtual environment, run this command: `pip install -r requirements.txt`
+
+### Our Prototype
 - [x] SBC [Pi 0 2W, 4, 5]
 - [ ] GPS coords [4G/LTE hat]
 - [x] Cell modem [4G/LTE hat]
