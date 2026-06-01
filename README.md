@@ -1,9 +1,9 @@
 ![ORION Startup Screen](./misc/orion.png)
 
-What is this you ask? ORION is a continuation and modernisation of a [project](https://github.com/davidus-sk/orion) I did over 12 years ago. ORION is a simple imaging system which runs from danw to dusk, it captures images of the sky periodically, stacks them, and then looks for lines. Why you ask? Well, for fun of course. The idea is to create beutidul composite images of the sky and capture a meteor or two streaking through the skys. Space is fascinating and the night sky is a window through which we can observe it.
+What is this, you ask? ORION is the continuation and modernization of a [project](https://github.com/davidus-sk/orion) I started over 12 years ago. It’s a simple automated imaging system that runs from dusk to dawn, continuously capturing images of the night sky, stacking them, and analyzing them for linear patterns. Why build this? Just for the sheer fun of it! The idea is to create beautiful composite images and hopefully catch a meteor or two streaking across the sky. Space is endlessly fascinating, and the night sky is our window to observe it.
 
 ## Documentation
-So you have decided to setup an ORION system yourself? Keep reading.
+So you have decided to setup an ORION system yourself? Excellent! Please read the documentation below as well as the quick start guide a few sections down.
 
 ### Config file
 The `conf/` directory contains a sample configuration file. Copy the `config.json.default` to `config.json`. By default the application is looking for this file to load up settings. Once you made the copy open the new file in your favorite text-based editor (e.g. `nano config.json`) and make changes as needed. At minimum you have to adjust your location by entering latitude and longitude in decimal format. If you have a GPS receiver in your 4G/LTE hat that the application supports, the coordinates will be picked up automatically and the JSON file is updated for you.
@@ -39,7 +39,7 @@ There are many ways to slice and dice this setup. You can build a simple system 
 - lighttpd
 
 ### Python
-Please see the [requirements.txt](./requirements.txt) file for needed modules. After you create your virtual environment, run this command: `pip install -r requirements.txt`
+Please see the [requirements.txt](./requirements.txt) file for the required modules. After you create your virtual environment, run this command: `pip install -r requirements.txt` to install the modules.
 
 ### Our Prototype
 - [x] SBC [Pi 0 2W, 4, 5]
