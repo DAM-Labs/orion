@@ -1,0 +1,11 @@
+astral==3.2
+cffi==2.0.0
+colorzero==2.0
+flatbuffers==20181003210633
+gpiozero==2.0.1
+h3==4.5.0
+numpy==2.4.6
+opencv-python==4.13.0.92
+pycparser==3.0
+setuptools==82.0.1
+timezonefinder==8.2.4

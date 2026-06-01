@@ -6,11 +6,12 @@ import glob
 import re
 import json
 import random
+import argparse
+import numpy as np
+import cv2
 from zoneinfo import ZoneInfo
 from timezonefinder import TimezoneFinder
 from datetime import datetime, timedelta, timezone
-import numpy as np
-import cv2
 from astral import LocationInfo
 from astral.sun import sun
 from pathlib import Path
@@ -221,10 +222,36 @@ def clean_old_images(image_dir):
     log_message(f"Deleted \033[34m{count}\033[0m files", to_file=config["log_to_file"])
 
 def main():
-    global config
+    # Application-wide configuration
+    global config, CONFIG_FILE
+
+    # Parse command line args
+    parser = argparse.ArgumentParser(
+        description="ORION - automated sky capture and stacking application"
+    )
+
+    parser.add_argument(
+        "--no_splash",
+        action="store_true",
+        help="Hide opening ORION animation on application startup"
+    )
+
+    parser.add_argument(
+        "-c", "--config",
+        type=str,
+        default=CONFIG_FILE,
+        help=f"Path to configuration JSON file (default: {CONFIG_FILE})"
+    )
+
+    args = parser.parse_args()
+
+    # Process supplied args
+    if args.config:
+        CONFIG_FILE = args.config
 
     # Show intro
-    orion_splash.animated_starfield()
+    if not args.no_splash:
+        orion_splash.animated_starfield()
 
     # Read config JSON into global var
     log_message(f"\033[33mReading configuration from\033[0m \033[34m{CONFIG_FILE}\033[0m", to_file=True)

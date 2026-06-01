@@ -1,7 +1,10 @@
 # orion
-
+![ORION Startup Screen](./misc/orion.png)
 
 ## Requirements
+### Python
+!INCLUDE "requirements.txt"
+
 ### Prototype
 - [x] SBC [Pi 0 2W, 4, 5]
 - [ ] GPS coords [4G/LTE hat]
