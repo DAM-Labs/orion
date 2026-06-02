@@ -77,7 +77,7 @@ def log_message(message, end="\n", to_file=False):
        # Strip color codes
        ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
        with open(LOG_FILE, "a") as file:
-           file.write(ansi_escape.sub('', message) + end)
+           file.write(f"{now} > " + ansi_escape.sub('', message) + end)
 
 def check_pi_camera():
     """
@@ -194,6 +194,8 @@ def stack_and_clean(image_dir, final_output_path):
     # Read the first image as the base
     # We process one by one to prevent the Pi from running out of RAM
     stacked = cv2.imread(image_paths[0])
+    height = stacked.shape[0]
+    width = stacked.shape[1]
 
     for path in image_paths[1:]:
         img = cv2.imread(path)
@@ -201,6 +203,12 @@ def stack_and_clean(image_dir, final_output_path):
             # Maximum blending pulls the brightest pixels (stars) from the dark sky
             # creating star trails and drastically reducing background noise.
             stacked = np.maximum(stacked, img)
+
+    # Add watermark to image
+    if config["watermark"]:
+        text = f"ORION | [{config["latitude"]}, {config["longitude"]}] | stacked from {len(image_paths)} images | {datetime.now()}"
+        cv2.rectangle(stacked, (0, height - 20), (width, height), (0, 0, 0), cv2.FILLED)
+        cv2.putText(stacked, text, (10, height - 18), cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1, cv2.LINE_AA)
 
     # Save the final enhanced image
     cv2.imwrite(final_output_path, stacked)
