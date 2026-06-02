@@ -1,3 +1,5 @@
+#!/app/orion_env/bin/python3
+
 import os
 import sys
 import time
@@ -17,8 +19,10 @@ from astral.sun import sun
 from pathlib import Path
 
 sys.path.insert(0, Path(__file__).parent.resolve().as_posix() + "/../lib")
+import orion_helpers
 import orion_splash
 import orion_servo
+
 
 # ================= Configuration =================
 
@@ -270,15 +274,32 @@ def main():
     else:
         log_message(f"Using configuration: \033[34m{config}\033[0m", to_file=config["log_to_file"])
 
+    # Update status file (used in web UI)
+    orion_helpers.update_status_file(config["status_file"], {"config_file":CONFIG_FILE})
+    orion_helpers.update_status_file(config["status_file"], {"config_contents":config})
+
     # Make sure the servo iris is closed
     log_message(f"\033[33mClosing iris...\033[0m", to_file=config["log_to_file"])
     orion_servo.move(0)
+    orion_servo.move(90)
+    orion_servo.move(0)
+
+    # Update status file (used in web UI)
+    orion_helpers.update_status_file(config["status_file"], {"iris_status":0})
 
     # Check that we have a camera connected
     # Exit if no camera found
-    if not check_pi_camera():
+    camera = check_pi_camera()
+    if not camera:
         log_message("No camera found. \033[31mExiting...\033[0m", to_file=config["log_to_file"])
+
+        # Update status file (used in web UI)
+        orion_helpers.update_status_file(config["status_file"], {"camera":0})
+
         sys.exit(-1)
+    else:
+        # Update status file (used in web UI)
+        orion_helpers.update_status_file(config["status_file"], {"camera":camera})
 
     # Create temp dir
     if not os.path.exists(config["temp_image_dir"]):
@@ -306,6 +327,11 @@ def main():
         log_message(f"Current Time: \033[34m{now.strftime('%Y-%m-%d %H:%M:%S %Z')}\033[0m", to_file=config["log_to_file"])
         log_message(f"Capture delay: \033[34m{config["minutes_delay"]} minutes\033[0m", to_file=config["log_to_file"])
         log_message(f"Next capture window: \033[34m{start_time.strftime('%Y-%m-%d %H:%M:%S %Z')} to {end_time.strftime('%Y-%m-%d %H:%M:%S %Z')}\033[0m", to_file=config["log_to_file"])
+
+        # Update status file (used in web UI)
+        orion_helpers.update_status_file(config["status_file"], {"time_zone":timezone_name})
+        orion_helpers.update_status_file(config["status_file"], {"start_time":start_time.timestamp()})
+        orion_helpers.update_status_file(config["status_file"], {"end_time":end_time.timestamp()})
 
         # Wait until the start of the window
         if now < start_time:

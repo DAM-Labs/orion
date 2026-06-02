@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORION // STAR STACKER SYSTEM</title>
+    <style>
+        /* Retro Terminal Styling */
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+
+        :root {
+            --glow-color: #00ff66;
+            --bg-color: #050d08;
+            --panel-bg: rgba(0, 30, 10, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--glow-color);
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            padding: 20px;
+            overflow-x: hidden;
+            text-shadow: 0 0 4px rgba(0, 255, 102, 0.6);
+        }
+
+        /* CRT Scanline & Flicker Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        header {
+            border: 2px solid var(--glow-color);
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            letter-spacing: 4px;
+            animation: blink 2s infinite;
+        }
+
+        .system-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .system-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        section {
+            border: 1px dashed var(--glow-color);
+            background: var(--panel-bg);
+            padding: 15px;
+            position: relative;
+            box-shadow: inset 0 0 15px rgba(0, 255, 102, 0.1);
+        }
+
+        section h2 {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--glow-color);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        section h2::after {
+            content: "[ONLINE]";
+            font-size: 0.8rem;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .data-label {
+            color: rgba(0, 255, 102, 0.7);
+        }
+
+        /* Log Terminal Box */
+        .log-box {
+            background: #020603;
+            border: 1px solid var(--glow-color);
+            height: 180px;
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
+            white-space: pre-wrap;
+        }
+
+        /* Image Library Layout */
+        .library-section {
+            grid-column: 1 / -1;
+        }
+
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .image-card {
+            border: 1px solid var(--glow-color);
+            background: #000;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .image-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 15px var(--glow-color);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            filter: grayscale(50%) contrast(120%) brightness(90%);
+            border: 1px solid rgba(0, 255, 102, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .image-card span {
+            font-size: 0.8rem;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020603;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--glow-color);
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>=== ORION // Automated Star Stacking System ===</h1>
+        <div style="font-size: 0.8rem; margin-top: 5px;">POLLING STATUS FILE EVERY 2000ms</div>
+    </header>
+
+    <div class="system-grid">
+        <section>
+            <h2>01. Location Metadata</h2>
+            <div class="data-row"><span class="data-label">SYSTEM TIME:</span> <span id="loc-time">--:--:--</span></div>
+            <div class="data-row"><span class="data-label">GPS COORDS:</span> <span id="loc-gps">--, --</span></div>
+            <div class="data-row"><span class="data-label">TIMEZONE:</span> <span id="loc-tz">--</span></div>
+            <div class="data-row"><span class="data-label">SUNSET (START):</span> <span id="loc-sunset">--:--</span></div>
+            <div class="data-row"><span class="data-label">SUNRISE (END):</span> <span id="loc-sunrise">--:--</span></div>
+        </section>
+
+        <section>
+            <h2>02. Hardware Status</h2>
+            <div class="data-row"><span class="data-label">CAMERA NAME:</span> <span id="cam-name">--</span></div>
+            <div class="data-row"><span class="data-label">SENSOR TYPE:</span> <span id="cam-type">--</span></div>
+            <div class="data-row"><span class="data-label">AVAIL. MODES:</span> <span id="cam-modes">--</span></div>
+            <div class="data-row"><span class="data-label">CAPTURE STATUS:</span> <span id="cam-capture" style="color: #fff;">--</span></div>
+            <div class="data-row"><span class="data-label">IRIS APERTURE:</span> <span id="cam-iris">--</span></div>
+        </section>
+
+        <section style="grid-column: 1 / -1;">
+            <h2>03. Core Process Console Output</h2>
+            <div class="log-box" id="log-terminal">
+                <div class="log-entry">[SYSTEM] Initializing stream... Waiting for payload data.</div>
+            </div>
+        </section>
+
+        <section class="library-section">
+            <h2>04. Stacked Image File Archive</h2>
+            <div class="image-gallery" id="library-gallery">
+                </div>
+        </section>
+    </div>
+
+    <script>
+        // Placeholder simulated JSON if the raw file can't be fetched locally (CORS / File protocol protection)
+        const mockStatusData = {
+            "location": {
+                "time": new Date().toISOString().replace('T', ' ').substring(0, 19),
+                "gps": "30.3322° N, 81.6557° W",
+                "timezone": "EST (America/New_York)",
+                "sunset": "20:14:02",
+                "sunrise": "06:21:44"
+            },
+            "camera": {
+                "name": "ZWO ASI294MC Pro",
+                "type": "Cooled CMOS Astrophotography",
+                "modes": "RAW16, RGB24, Still, Live_Stack",
+                "current_capture_status": "INTEGRATING FRAME #47 / GAIN: 120",
+                "iris_status": "f/2.8 (Fixed via T2-Mount)"
+            },
+            "logs": [
+                "[INFO] 21:04:12 - Target Acquired: Orion Nebula (M42)",
+                "[INFO] 21:05:00 - Guiding stabilized. RMS error: 0.45 arcsec",
+                "[LIVE] 21:06:15 - Captured Frame #45. Star matching: 142 stars aligned.",
+                "[LIVE] 21:07:15 - Captured Frame #46. Rejecting frame (Cloud cover trip).",
+                "[LIVE] 21:08:15 - Captured Frame #47. Added to active matrix stack."
+            ],
+            "library": [
+                { "title": "M42_Stack_30m.fit", "url": "https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?w=400&q=80" },
+                { "title": "M31_Andromeda_final.png", "url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&q=80" },
+                { "title": "Pleiades_M45_Test.tiff", "url": "https://images.unsplash.com/photo-1538370965046-79c0d6907d47?w=400&q=80" }
+            ]
+        };
+
+        async function fetchOrionStatus() {
+            try {
+                // Attempt to read standard local file json target
+                const response = await fetch('orion_status.json');
+                if (!response.ok) throw new Error("HTTP error reading orion_status.json");
+                const data = await response.json();
+                updateUI(data);
+            } catch (error) {
+                console.warn("Could not fetch 'orion_status.json'. Falling back to demo data mode.", error);
+                
+                // Update live clock on mock data for realism
+                mockStatusData.location.time = new Date().toISOString().replace('T', ' ').substring(0, 19);
+                updateUI(mockStatusData);
+            }
+        }
+
+        function updateUI(data) {
+            // Update Location Info
+            document.getElementById('loc-time').innerText = data.location.time || 'N/A';
+            document.getElementById('loc-gps').innerText = data.location.gps || 'N/A';
+            document.getElementById('loc-tz').innerText = data.location.timezone || 'N/A';
+            document.getElementById('loc-sunset').innerText = data.location.sunset || 'N/A';
+            document.getElementById('loc-sunrise').innerText = data.location.sunrise || 'N/A';
+
+            // Update Camera Info
+            document.getElementById('cam-name').innerText = data.camera.name || 'N/A';
+            document.getElementById('cam-type').innerText = data.camera.type || 'N/A';
+            document.getElementById('cam-modes').innerText = Array.isArray(data.camera.modes) ? data.camera.modes.join(', ') : data.camera.modes || 'N/A';
+            document.getElementById('cam-capture').innerText = data.camera.current_capture_status || 'N/A';
+            document.getElementById('cam-iris').innerText = data.camera.iris_status || 'N/A';
+
+            // Update Logs Console
+            const logBox = document.getElementById('log-terminal');
+            logBox.innerHTML = ''; // Reset container
+            if (data.logs && data.logs.length > 0) {
+                data.logs.forEach(log => {
+                    const line = document.createElement('div');
+                    line.className = 'log-entry';
+                    line.innerText = log;
+                    logBox.appendChild(line);
+                });
+                // Auto-scroll to bottom of system log
+                logBox.scrollTop = logBox.scrollHeight;
+            }
+
+            // Update Image Archive Library
+            const gallery = document.getElementById('library-gallery');
+            gallery.innerHTML = ''; // Reset images
+            if (data.library && data.library.length > 0) {
+                data.library.forEach(imgData => {
+                    const card = document.createElement('div');
+                    card.className = 'image-card';
+                    card.onclick = () => window.open(imgData.url, '_blank');
+                    
+                    const img = document.createElement('img');
+                    img.src = imgData.url;
+                    img.alt = imgData.title;
+                    
+                    const span = document.createElement('span');
+                    span.innerText = imgData.title;
+                    
+                    card.appendChild(img);
+                    card.appendChild(span);
+                    gallery.appendChild(card);
+                });
+            }
+        }
+
+        // Loop the JSON fetch checking script continuously every 2000 milliseconds
+        setInterval(fetchOrionStatus, 2000);
+        
+        // Initial setup execution
+        fetchOrionStatus();
+    </script>
+</body>
+</html>

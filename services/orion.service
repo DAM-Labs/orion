@@ -1,0 +1,11 @@
+[Unit]
+Description=ORION night sky stacking application
+
+[Service]
+ExecStart=/app/orion/bin/orion.py --no_splash
+Restart=always
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
