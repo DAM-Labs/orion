@@ -1,0 +1,17 @@
+# Disable Power LED
+dtparam=pwr_led_trigger=default-on
+dtparam=pwr_led_activelow=off
+
+# Disable Activity LED
+dtparam=act_led_trigger=none
+dtparam=act_led_activelow=off
+
+# Disable WiFi and BT
+dtoverlay=disable-wifi
+dtoverlay=disable-bt
+
+# Disable ethernet
+#dtoverlay=noeth
+
+# Disable the KMS display pipeline entirely for headless operation
+dtoverlay=vc4-kms-v3d,nohdmi

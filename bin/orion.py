@@ -132,14 +132,17 @@ def check_pi_camera():
                 modes.append(f"\033[34m{mode[0]} @ {mode[1]} FPS\033[0m")
 
             log_message(f"Supported Hardware Modes: {",".join(modes)}", to_file=config["log_to_file"])
-        return True
+
+        return {"name":model, "bit_depth":bit_depth, "max_res":max_res}
 
     except FileNotFoundError:
         log_message("\033[31mError:\033[0m 'rpicam-still' utility not found. Ensure rpicam-apps package is installed.", to_file=config["log_to_file"])
         return False
+
     except subprocess.TimeoutExpired:
         log_message("\033[31mError:\033[0m Camera query timed out. The hardware bus might be frozen.", to_file=config["log_to_file"])
         return False
+
     except Exception as e:
         log_message(f"\033[31mUnexpected error checking camera status: {e}\033[0m", to_file=config["log_to_file"])
         return False
@@ -211,6 +214,7 @@ def stack_and_clean(image_dir, final_output_path):
     # Add watermark to image
     if config["watermark"]:
         text = f"ORION | [{config["latitude"]}, {config["longitude"]}] | stacked from {len(image_paths)} images | {datetime.now()}"
+        log_message(f"\033[33mInserting watermark\033[0m \033[34m{text}\033[0m", to_file=config["log_to_file"])
         cv2.rectangle(stacked, (0, height - 20), (width, height), (0, 0, 0), cv2.FILLED)
         cv2.putText(stacked, text, (10, height - 18), cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1, cv2.LINE_AA)
 
@@ -275,8 +279,7 @@ def main():
         log_message(f"Using configuration: \033[34m{config}\033[0m", to_file=config["log_to_file"])
 
     # Update status file (used in web UI)
-    orion_helpers.update_status_file(config["status_file"], {"config_file":CONFIG_FILE})
-    orion_helpers.update_status_file(config["status_file"], {"config_contents":config})
+    orion_helpers.update_status_file(config["status_file"], {"config_file":CONFIG_FILE, "config_contents":config})
 
     # Make sure the servo iris is closed
     log_message(f"\033[33mClosing iris...\033[0m", to_file=config["log_to_file"])
@@ -285,7 +288,7 @@ def main():
     orion_servo.move(0)
 
     # Update status file (used in web UI)
-    orion_helpers.update_status_file(config["status_file"], {"iris_status":0})
+    orion_helpers.update_status_file(config["status_file"], {"camera":{"iris_status":0}})
 
     # Check that we have a camera connected
     # Exit if no camera found
@@ -294,7 +297,7 @@ def main():
         log_message("No camera found. \033[31mExiting...\033[0m", to_file=config["log_to_file"])
 
         # Update status file (used in web UI)
-        orion_helpers.update_status_file(config["status_file"], {"camera":0})
+        orion_helpers.update_status_file(config["status_file"], {"camera":{"name":"None"}})
 
         sys.exit(-1)
     else:
@@ -329,9 +332,7 @@ def main():
         log_message(f"Next capture window: \033[34m{start_time.strftime('%Y-%m-%d %H:%M:%S %Z')} to {end_time.strftime('%Y-%m-%d %H:%M:%S %Z')}\033[0m", to_file=config["log_to_file"])
 
         # Update status file (used in web UI)
-        orion_helpers.update_status_file(config["status_file"], {"time_zone":timezone_name})
-        orion_helpers.update_status_file(config["status_file"], {"start_time":start_time.timestamp()})
-        orion_helpers.update_status_file(config["status_file"], {"end_time":end_time.timestamp()})
+        orion_helpers.update_status_file(config["status_file"], {"location": {"timezone":timezone_name, "sunset":start_time.timestamp(), "sunrise":end_time.timestamp(),"gps":f"{config["latitude"]}, {config["longitude"]}"}})
 
         # Wait until the start of the window
         if now < start_time:
@@ -343,9 +344,15 @@ def main():
             log_message(f"\033[33mWaiting {sleep_seconds / 3600:.2f} hours until sunset + {config["minutes_delay"]} minutes...\033[0m", to_file=config["log_to_file"])
             time.sleep(sleep_seconds)
 
+            # Update status file (used in web UI)
+            orion_helpers.update_status_file(config["status_file"], {"camera":{"status":"Waiting"}})
+
         # Open camera to the sky
         log_message(f"\033[33mOpening iris...\033[0m", to_file=config["log_to_file"])
         orion_servo.move(90)
+
+        # Update status file (used in web UI)
+        orion_helpers.update_status_file(config["status_file"], {"camera":{"iris_status":1}})
 
         log_message("Capture window active. \033[32mStarting collection...\033[0m", to_file=config["log_to_file"])
         log_message(f"Collection interval: \033[34m{config["imaging_interval"]} s\033[0m", to_file=config["log_to_file"])
@@ -377,6 +384,9 @@ def main():
             log_message(f"Captured frame #{frame_count} \033[34m{filename}\033[0m", to_file=config["log_to_file"])
             log_message(f"Capturing took \033[34m{capture_duration:.2f}\033[0m seconds", to_file=config["log_to_file"])
 
+            # Update status file (used in web UI)
+            orion_helpers.update_status_file(config["status_file"], {"camera":{"status":f"Acquired image {frame_count}"}})
+
             # Sleep until the next interval, breaking early if the window ends
 
             if capture_duration < config["imaging_interval"]:
@@ -388,11 +398,20 @@ def main():
         log_message(f"\033[33mClosing iris...\033[0m", to_file=config["log_to_file"])
         orion_servo.move(0)
 
+        # Update status file (used in web UI)
+        orion_helpers.update_status_file(config["status_file"], {"camera":{"iris_status":0}})
+
         # Format the final stacked image name with today's date
         date_str = datetime.now().strftime("%Y-%m-%d")
         final_image_path = os.path.join(config["final_image_dir"], f"{date_str}_stacked.jpg")
 
+        # Update status file (used in web UI)
+        orion_helpers.update_status_file(config["status_file"], {"camera":{"status":"Stacking"}})
+
         stack_and_clean(config["temp_image_dir"], final_image_path)
+
+        # Update status file (used in web UI)
+        orion_helpers.update_status_file(config["status_file"], {"camera":{"status":"Sleeping"}})
 
         # Loop restarts to wait for the next night
 

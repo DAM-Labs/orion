@@ -1,6 +1,20 @@
 import json
 import os
 
+def deep_merge(source, destination):
+    """
+    Recursively merges source into destination.
+    """
+    for key, value in source.items():
+        if isinstance(value, dict):
+            # If the key is a dict in both source and destination, merge them recursively
+            node = destination.setdefault(key, {})
+            deep_merge(value, node)
+        else:
+            # Otherwise, just overwrite or insert the value
+            destination[key] = value
+    return destination
+
 def update_status_file(file_path, new_data):
     """
     Reads a JSON file, updates it with new key-value pairs, 
@@ -23,8 +37,7 @@ def update_status_file(file_path, new_data):
         data = {}
 
     # 2. Update the data with the new key-value pairs
-    # .update() modifies existing keys and inserts new ones automatically
-    data.update(new_data)
+    deep_merge(new_data, data)
 
     # 3. Write the updated data back to the file
     with open(file_path, 'w', encoding='utf-8') as file:

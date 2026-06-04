@@ -198,10 +198,10 @@
         <section>
             <h2>02. Hardware Status</h2>
             <div class="data-row"><span class="data-label">CAMERA NAME:</span> <span id="cam-name">--</span></div>
-            <div class="data-row"><span class="data-label">SENSOR TYPE:</span> <span id="cam-type">--</span></div>
-            <div class="data-row"><span class="data-label">AVAIL. MODES:</span> <span id="cam-modes">--</span></div>
+            <div class="data-row"><span class="data-label">BIT DEPTH:</span> <span id="cam-depth">--</span></div>
+            <div class="data-row"><span class="data-label">RESOLUTION:</span> <span id="cam-resolution">--</span></div>
             <div class="data-row"><span class="data-label">CAPTURE STATUS:</span> <span id="cam-capture" style="color: #fff;">--</span></div>
-            <div class="data-row"><span class="data-label">IRIS APERTURE:</span> <span id="cam-iris">--</span></div>
+            <div class="data-row"><span class="data-label">IRIS STATUS:</span> <span id="cam-iris">--</span></div>
         </section>
 
         <section style="grid-column: 1 / -1;">
@@ -224,16 +224,16 @@
             "location": {
                 "time": new Date().toISOString().replace('T', ' ').substring(0, 19),
                 "gps": "30.3322° N, 81.6557° W",
-                "timezone": "EST (America/New_York)",
+                "timezone": "America/New_York",
                 "sunset": "20:14:02",
                 "sunrise": "06:21:44"
             },
             "camera": {
-                "name": "ZWO ASI294MC Pro",
-                "type": "Cooled CMOS Astrophotography",
-                "modes": "RAW16, RGB24, Still, Live_Stack",
-                "current_capture_status": "INTEGRATING FRAME #47 / GAIN: 120",
-                "iris_status": "f/2.8 (Fixed via T2-Mount)"
+                "name": "imx519",
+                "bit_depth": "10-bit RGGB",
+                "max_res": "4656x3496 pixels",
+                "status": "SLEEPING",
+                "iris_status": "CLOSED"
             },
             "logs": [
                 "[INFO] 21:04:12 - Target Acquired: Orion Nebula (M42)",
@@ -275,10 +275,10 @@
 
             // Update Camera Info
             document.getElementById('cam-name').innerText = data.camera.name || 'N/A';
-            document.getElementById('cam-type').innerText = data.camera.type || 'N/A';
-            document.getElementById('cam-modes').innerText = Array.isArray(data.camera.modes) ? data.camera.modes.join(', ') : data.camera.modes || 'N/A';
-            document.getElementById('cam-capture').innerText = data.camera.current_capture_status || 'N/A';
-            document.getElementById('cam-iris').innerText = data.camera.iris_status || 'N/A';
+            document.getElementById('cam-depth').innerText = data.camera.bit_depth || 'N/A';
+            document.getElementById('cam-resolution').innerText = data.camera.max_res || 'N/A';
+            document.getElementById('cam-capture').innerText = data.camera.status || 'N/A';
+            document.getElementById('cam-iris').innerText = data.camera.iris_status ? 'CLOSED' : 'OPEN' || 'N/A';
 
             // Update Logs Console
             const logBox = document.getElementById('log-terminal');
