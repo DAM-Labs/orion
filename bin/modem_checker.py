@@ -5,7 +5,7 @@ import time
 
 # Configuration
 CHECK_INTERVAL = 1  # Seconds
-USB_PORT = "1"      # Usually port 2 on RPi 4/5, use 'uhubctl' to verify
+USB_PORT = "4"      # Usually port 2 on RPi 4/5, use 'uhubctl' to verify
 
 def is_modem_present():
     try:
@@ -23,15 +23,17 @@ def reset_usb_power():
     print("Modem missing! Resetting USB power...")
     try:
         # Turn off power
-        subprocess.run(['/usr/sbin/uhubctl', '-l', '1-1', '-p', USB_PORT, '-a', '0'], check=True)
+        subprocess.run(['/usr/sbin/uhubctl', '-l', '1-1', '-p', USB_PORT, '-a', '0'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
         # Give it a moment to fully discharge
         time.sleep(3)
 
         # Turn on power
-        subprocess.run(['/usr/sbin/uhubctl', '-l', '1-1', '-p', USB_PORT, '-a', '1'], check=True)
-        print("Power cycled. Waiting for modem to initialize...")
+        subprocess.run(['/usr/sbin/uhubctl', '-l', '1-1', '-p', USB_PORT, '-a', '1'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
         # Wait for the modem to boot before checking again
-        time.sleep(10)
+        print("Power cycled. Waiting for modem to initialize...")
+        time.sleep(30)
     except Exception as e:
         print(f"Failed to reset USB: {e}")
 
