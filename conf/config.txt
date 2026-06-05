@@ -10,8 +10,5 @@ dtparam=act_led_activelow=off
 dtoverlay=disable-wifi
 dtoverlay=disable-bt
 
-# Disable ethernet
-#dtoverlay=noeth
-
 # Disable the KMS display pipeline entirely for headless operation
-dtoverlay=vc4-kms-v3d,nohdmi
+#dtoverlay=vc4-kms-v3d

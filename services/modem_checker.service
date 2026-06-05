@@ -1,0 +1,12 @@
+[Unit]
+Description=Modem Checker
+After=network.target
+
+[Service]
+ExecStart=/app/orion/bin/modem_checker.py
+Restart=always
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
