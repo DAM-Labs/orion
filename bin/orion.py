@@ -11,6 +11,7 @@ import random
 import argparse
 import numpy as np
 import cv2
+
 from zoneinfo import ZoneInfo
 from timezonefinder import TimezoneFinder
 from datetime import datetime, timedelta, timezone
@@ -357,6 +358,7 @@ def main():
         log_message("Capture window active. \033[32mStarting collection...\033[0m", to_file=config["log_to_file"])
         log_message(f"Collection interval: \033[34m{config["imaging_interval"]} s\033[0m", to_file=config["log_to_file"])
         log_message(f"Camera shutter: \033[34m{config["camera_shutter"]} us\033[0m", to_file=config["log_to_file"])
+        log_message(f"Camera gain: \033[34m{config["camera_gain"]}\033[0m", to_file=config["log_to_file"])
 
         frame_count = 0
 
@@ -370,7 +372,7 @@ def main():
                 "-n",
                 "--immediate",
                 "--shutter", str(config["camera_shutter"]),
-                "--gain", "1",
+                "--gain", str(config["camera_gain"]),
                 "--awbgains", "1,1",
                 "-o", filename
             ]

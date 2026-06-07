@@ -2,10 +2,12 @@
 	"latitude":38.50428,
 	"longitude":-109.381024,
 	"temp_image_dir":"/tmp/images",
-	"final_image_dir":"/tmp",
-	"imaging_interval":60,
-	"minutes_delay":60,
-	"camera_shutter":15000000,
+	"final_image_dir":"/app/orion/web",
+	"imaging_interval":45,
+	"minutes_delay":65,
+	"camera_shutter":30000000,
+	"camera_gain":10,
 	"log_to_file":true,
-	"watermark":true
+	"watermark":true,
+	"status_file":"/tmp/orin_status.json"
 }
