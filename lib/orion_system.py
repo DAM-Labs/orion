@@ -29,7 +29,7 @@ def get_cpu_temp():
         print("Thermal zone file not found. Ensure this is running on a Linux/Raspberry Pi system.")
         return 0.0
 
-def get_free_space_gb(path: str) -> float:
+def get_free_space_gb(path):
     """
     Returns the free space left on a specified drive/path in Gigabytes (GB).
 
@@ -51,7 +51,7 @@ def get_free_space_gb(path: str) -> float:
         print(f"An error occurred while checking '{path}': {e}")
         return 0.0
 
-def get_modem_signal_level() -> int | None:
+def get_modem_signal_level():
     """
     Detects an attached modem via mmcli and returns its signal level percentage.
     Returns None if no modem is found or if the signal cannot be read.
