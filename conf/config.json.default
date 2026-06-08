@@ -4,7 +4,7 @@
 	"temp_image_dir":"/tmp/images",
 	"final_image_dir":"/app/orion/web",
 	"imaging_interval":45,
-	"minutes_delay":65,
+	"minutes_delay":95,
 	"camera_shutter":30000000,
 	"camera_gain":10,
 	"log_to_file":true,
