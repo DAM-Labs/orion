@@ -193,12 +193,11 @@
             <div class="data-row"><span class="data-label">TIMEZONE:</span> <span id="loc-tz">--</span></div>
             <div class="data-row"><span class="data-label">SUNSET (START):</span> <span id="loc-sunset">--:--</span></div>
             <div class="data-row"><span class="data-label">SUNRISE (END):</span> <span id="loc-sunrise">--:--</span></div>
-            <div class="data-row"><span class="data-label">UPTIME:</span> <span id="loc-uptime">--:--</span></div>
-
+            <div class="data-row"><span class="data-label">DELAY:</span> <span id="loc-delay">--</span></div>
         </section>
 
         <section>
-            <h2>02. Hardware Status</h2>
+            <h2>02. Camera Status</h2>
             <div class="data-row"><span class="data-label">CAMERA NAME:</span> <span id="cam-name">--</span></div>
             <div class="data-row"><span class="data-label">BIT DEPTH:</span> <span id="cam-depth">--</span></div>
             <div class="data-row"><span class="data-label">RESOLUTION:</span> <span id="cam-resolution">--</span></div>
@@ -208,15 +207,24 @@
             <div class="data-row"><span class="data-label">IRIS STATUS:</span> <span id="cam-iris">--</span></div>
         </section>
 
+        <section>
+            <h2>03. System Status</h2>
+            <div class="data-row"><span class="data-label">UPTIME:</span> <span id="sys-uptime">--</span></div>
+            <div class="data-row"><span class="data-label">CELL SIGNAL:</span> <span id="sys-uptime">--</span></div>
+            <div class="data-row"><span class="data-label">CPU TEMPERATURE:</span> <span id="sys-uptime">--</span></div>
+            <div class="data-row"><span class="data-label">FREE SPACE /:</span> <span id="sys-uptime">--</span></div>
+            <div class="data-row"><span class="data-label">FREE SPACE /DATA:</span> <span id="sys-uptime">--</span></div>
+        </section>
+
         <section style="grid-column: 1 / -1;">
-            <h2>03. Core Process Console Output</h2>
+            <h2>04. Core Process Console Output</h2>
             <div class="log-box" id="log-terminal">
                 <div class="log-entry">[SYSTEM] Initializing stream... Waiting for payload data.</div>
             </div>
         </section>
 
         <section class="library-section">
-            <h2>04. Stacked Image File Archive</h2>
+            <h2>05. Stacked Image File Archive</h2>
             <div class="image-gallery" id="library-gallery">
                 </div>
         </section>
@@ -230,7 +238,8 @@
                 "gps": "30.3322° N, 81.6557° W",
                 "timezone": "America/New_York",
                 "sunset": "20:14:02",
-                "sunrise": "06:21:44"
+                "sunrise": "06:21:44",
+                "delay": "65 minutes"
             },
             "camera": {
                 "name": "imx519",
