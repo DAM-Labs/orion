@@ -1,5 +1,7 @@
 [Unit]
 Description=ORION night sky stacking application
+After=time-sync.target
+Requires=time-sync.target
 
 [Service]
 ExecStart=/app/orion/bin/orion.py --no_splash
