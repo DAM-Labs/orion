@@ -113,9 +113,10 @@ def dm_to_decimal(value, direction):
     return round(decimal, 8)
 
 
-def modem_power(status, usb=0):
+def modem_power(status, usb=False):
     if status:
         if usb:
+            print(f"Enabling USB")
             # Bind
             with open('/sys/bus/pci/drivers/xhci_hcd/bind', 'w') as f:
                 f.write('0000:01:00.0')
@@ -126,7 +127,7 @@ def modem_power(status, usb=0):
             time.sleep(2)
             pin.off()
             pin.close()
-                
+
         time.sleep(20)
         print(f"Cell modem ON.")
         subprocess.run(['/usr/bin/systemctl', 'start', 'modem_checker'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -134,6 +135,7 @@ def modem_power(status, usb=0):
         subprocess.run(['/usr/bin/systemctl', 'stop', 'modem_checker'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         if usb:
+            print(f"Disabling USB")
             # Unbind
             with open('/sys/bus/pci/drivers/xhci_hcd/unbind', 'w') as f:
                 f.write('0000:01:00.0')
@@ -144,6 +146,6 @@ def modem_power(status, usb=0):
             time.sleep(3)
             pin.off()
             pin.close()
-            time.sleep(20)
 
+        time.sleep(20)
         print(f"Cell modem OFF.")
