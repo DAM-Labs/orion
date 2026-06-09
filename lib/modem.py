@@ -2,6 +2,8 @@ import subprocess
 import json
 import serial
 import time
+import sys
+from gpiozero import OutputDevice 
 
 def get_modem_list():
     """Returns a list of modem indices found on the system."""
@@ -96,7 +98,7 @@ def run_gps_service():
 
         time.sleep(15)
 
-  def dm_to_decimal(value, direction):
+def dm_to_decimal(value, direction):
     if not value:
         return 0.0
     # Format: DDMM.MMMM
@@ -109,3 +111,39 @@ def run_gps_service():
         decimal *= -1
 
     return round(decimal, 8)
+
+
+def modem_power(status, usb=0):
+    if status:
+        if usb:
+            # Bind
+            with open('/sys/bus/pci/drivers/xhci_hcd/bind', 'w') as f:
+                f.write('0000:01:00.0')
+        else:
+            # Initialize the pin device
+            pin = OutputDevice(6)
+            pin.on()
+            time.sleep(2)
+            pin.off()
+            pin.close()
+                
+        time.sleep(20)
+        print(f"Cell modem ON.")
+        subprocess.run(['/usr/bin/systemctl', 'start', 'modem_checker'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    else:
+        subprocess.run(['/usr/bin/systemctl', 'stop', 'modem_checker'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        if usb:
+            # Unbind
+            with open('/sys/bus/pci/drivers/xhci_hcd/unbind', 'w') as f:
+                f.write('0000:01:00.0')
+        else:
+            # Initialize the pin device
+            pin = OutputDevice(6)
+            pin.on()
+            time.sleep(3)
+            pin.off()
+            pin.close()
+            time.sleep(20)
+
+        print(f"Cell modem OFF.")
