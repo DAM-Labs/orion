@@ -1,6 +1,8 @@
 import shutil
 import subprocess
 import re
+import glob
+import os
 
 def get_uptime():
     """
@@ -95,3 +97,29 @@ def get_modem_signal_level():
     except subprocess.CalledProcessError as e:
         print(f"Error executing mmcli command: {e}")
         return None
+
+def set_powersave_governor(state):
+    """
+    Sets the CPU governor to 'powersave' for all available CPU cores.
+    Requires root privileges (sudo) to execute successfully.
+    """
+    # Find the scaling_governor file path for every CPU core
+    governor_paths = glob.glob('/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor')
+
+    if not governor_paths:
+        print("Error: Could not find CPU scaling governor files. Are you running on Linux?")
+        return False
+
+    try:
+        # Write 'powersave' to each core's governor file
+        for path in governor_paths:
+            with open(path, 'w') as file:
+                file.write(state)
+        return True
+
+    except PermissionError:
+        print("Permission Denied: You must run this script with root privileges (sudo).")
+        return False
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return False

@@ -1,2 +1,2 @@
 59 23	* * *	root	/app/orion_env/bin/python3 /app/orion/bin/modem_control.py --off --usb
-59 8	* * *	root	/app/orion_env/bin/python3 /app/orion/bin/modem_control.py --on --usb
+59 9	* * *	root	/app/orion_env/bin/python3 /app/orion/bin/modem_control.py --on --usb

@@ -23,7 +23,7 @@ sys.path.insert(0, Path(__file__).parent.resolve().as_posix() + "/../lib")
 import orion_helpers
 import orion_splash
 import orion_servo
-
+import orion_system
 
 # ================= Configuration =================
 
@@ -340,6 +340,10 @@ def main():
             # Removed old images if any
             clean_old_images(config["temp_image_dir"])
 
+            # Save power
+            log_message(f"\033[33mSetting CPU state to powersave\033[0m", to_file=config["log_to_file"])
+            orion_system.set_powersave_governor("powersave")
+
             # Wait till the next sunset
             sleep_seconds = (start_time - now).total_seconds()
             log_message(f"\033[33mWaiting {sleep_seconds / 3600:.2f} hours until sunset + {config["minutes_delay"]} minutes...\033[0m", to_file=config["log_to_file"])
@@ -347,6 +351,10 @@ def main():
 
             # Update status file (used in web UI)
             orion_helpers.update_status_file(config["status_file"], {"camera":{"status":"Waiting"}})
+
+        # Crankup CPU
+        log_message(f"\033[33mSetting CPU state to ondemand\033[0m", to_file=config["log_to_file"])
+        orion_system.set_powersave_governor("ondemand")
 
         # Open camera to the sky
         log_message(f"\033[33mOpening iris...\033[0m", to_file=config["log_to_file"])
