@@ -214,9 +214,8 @@ def stack_and_clean(image_dir, final_output_path):
 
     # Add watermark to image
     if config["watermark"]:
-        text = f"ORION | [{config["latitude"]}, {config["longitude"]}] | stacked from {len(image_paths)} images | {datetime.now()}"
+        text = f"ORION Star Stacker | GPS: [{config["latitude"]}, {config["longitude"]}] | Stacked from {len(image_paths)} images | Sunset: | Sunrise: | Created on: {datetime.now()}"
         log_message(f"\033[33mInserting watermark\033[0m \033[34m{text}\033[0m", to_file=config["log_to_file"])
-        cv2.rectangle(stacked, (0, height - 20), (width, height), (0, 0, 0), cv2.FILLED)
         cv2.putText(stacked, text, (10, height - 18), cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1, cv2.LINE_AA)
 
     # Save the final enhanced image
