@@ -41,7 +41,9 @@ There are many ways to slice and dice this setup. You can build a simple system 
 ### Python
 Please see the [requirements.txt](./requirements.txt) file for the required modules. After you create your virtual environment, run this command: `pip install -r requirements.txt` to install the modules.
 
-### Our Prototype
+## Our Prototype
+![ORION Prototype](./misc/prototype.jpg)
+
 - [x] SBC [Pi 0 2W, 4, 5]
 - [ ] GPS coords [4G/LTE hat]
 - [x] Cell modem [4G/LTE hat]
@@ -55,3 +57,6 @@ Please see the [requirements.txt](./requirements.txt) file for the required modu
 - [ ] enclosure
 - [ ] glass cover
 - [x] led indicator
+
+## Examples
+![ORION Output 1](./misc/nightsky-1.jpg)
